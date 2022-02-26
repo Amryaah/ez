@@ -1,0 +1,22 @@
+#!/bin/bash
+
+webhook_url="https://discord.com/api/webhooks/yoururl"
+#Replace the URL above with your Discord Webhook link
+websites_list="yourwebsite.com"
+#Switch yourwebsite.com with the website you'd like to monitor. You can add additional domains by adding a space followed by the URL.
+
+#==================================================================================================================================
+
+#This is the main loop of our script
+for website in ${websites_list}; do
+#for each website in our websites list, do the following:
+        status_code=$(curl --write-out %{http_code} --silent --output /dev/null -L ${website})
+#Get the status code of the website, but don't display the result
+    if [[ "$status_code" -ne 200 ]] ; then
+    #If the website status code is not equal to 200, then output the following to our webhook URL:
+        curl -H "Content-Type: application/json" -X POST -d '{"content":"'"${website} is experiencing an issue. Error code: ${status_code}"'"}'  $webhook_url
+    else
+    #Otherwise, output:
+        echo "${website} is up!"
+    fi
+done
